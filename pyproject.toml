@@ -6,13 +6,46 @@ authors = [
     {name = "VitorFichel",email = "vitorfichel@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4.0"
 dependencies = [
+    "fastapi[standard] (>=0.115.12,<0.116.0)",
+    "uvicorn (>=0.34.0,<0.35.0)"
 ]
 
 [tool.poetry]
 packages = [{include = "fastapi_project", from = "src"}]
 
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.4"
+pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
+taskipy = "^1.14.1"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ['migrations']
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
+
+[tool.taskipy.tasks]
+lint = 'ruff check . && ruff check . --diff'
+pre_format = 'ruff check --fix'
+format = 'ruff check . --fix && ruff format .'
+run = 'fastapi dev fastapi_project.app'
+pre_test = 'task lint'
+test = 'pytest --cov= -vv'
+post_test = 'coverage html'
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
